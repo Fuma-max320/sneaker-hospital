@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>白スニーカー判定アプリ</title>
+    <style>
+        /* 🎨 UI/UX: 全体をスマホアプリ風のモダンで清潔感のあるデザインに */
+        body {
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .header {
+            width: 100%;
+            padding: 20px 0;
+            background-color: #ffffff;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #212529;
+        }
+        .container {
+            width: 90%;
+            max-width: 400px;
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* 🎨 UI/UX: カメラエリア（ここにガイド枠を重ねます） */
+        .camera-box {
+            width: 100%;
+            aspect-ratio: 3 / 4; /* スマホの写真サイズに合わせる */
+            background-color: #e9ecef;
+            border: 3px dashed #adb5bd;
+            border-radius: 16px;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .camera-box:hover {
+            background-color: #dee2e6;
+        }
+        /* 🎨 UI/UX: スニーカーの半透明シルエット（SVGを背景にして点線で表現） */
+        .sneaker-guide {
+            position: absolute;
+            width: 80%;
+            height: 80%;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cpath fill='none' stroke='%23adb5bd' stroke-width='3' stroke-dasharray='6' d='M80,70 L20,70 C15,70 10,65 10,60 L10,50 C10,40 25,35 35,35 C45,35 50,45 60,45 L70,45 C80,45 90,55 90,60 C90,65 85,70 80,70 Z'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: contain;
+            opacity: 0.8;
+            pointer-events: none; /* クリックを邪魔しないための設定 */
+        }
+        .instruction-text {
+            position: absolute;
+            bottom: 20px;
+            font-size: 0.95rem;
+            color: #6c757d;
+            font-weight: bold;
+            pointer-events: none;
+            background-color: rgba(255,255,255,0.7);
+            padding: 4px 12px;
+            border-radius: 20px;
+        }
+        /* 撮影した写真を表示するimgタグ */
+        #previewImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 枠いっぱいに綺麗に収める */
+            display: none; /* 最初は隠しておく */
+            z-index: 10;
+        }
+        /* 実際のファイル送信ボタンはダサいので隠す */
+        input[type="file"] {
+            display: none;
+        }
+        /* 次へ進むボタン */
+        .action-btn {
+            margin-top: 30px;
+            padding: 16px 32px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+            display: none; /* 写真を撮るまで隠す */
+            transition: transform 0.2s;
+        }
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+/* 🎨 UI/UX: Before/Afterスライダーの装飾 */
+        .comparison-slider {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 3 / 4; /* カメラ枠と同じ比率をキープ */
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        .comparison-slider img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #afterImage {
+            /* 初期状態は左半分だけ表示（clip-pathの魔法！） */
+            clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
+        }
+        /* スライダーの白い線 */
+        .slider-line {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            left: 50%;
+            width: 4px;
+            background-color: white;
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
+            pointer-events: none; /* タッチの邪魔をしない */
+        }
+        /* スライダーの中央ボタン */
+        .slider-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 44px;
+            height: 44px;
+            background-color: white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            color: #555;
+            pointer-events: none; /* タッチの邪魔をしない */
+        }
+        /* 透明な操作用 input range */
+        #compareSlider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0; /* 完全に透明にして上に被せる */
+            margin: 0;
+            z-index: 10;
+        }
+/* 🎨 UI/UX: スコア表示とボタンの装飾 */
+        .score-box {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        .score-label {
+            font-size: 0.9rem;
+            color: #6c757d;
+            font-weight: bold;
+        }
+        .score-value {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #2b2d42;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .score-unit {
+            font-size: 1.2rem;
+            margin-left: 5px;
+            color: #6c757d;
+        }
+        .score-desc {
+            font-size: 0.85rem;
+            color: #28a745; /* ポジティブなグリーン */
+            font-weight: bold;
+            margin: 5px 0 0 0;
+        }
+        .care-btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0,123,255,0.4);
+            transition: transform 0.2s;
+            box-sizing: border-box;
+        }
+        .care-btn:active {
+            transform: scale(0.97); /* 押した時の「へこむ」感触 */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">👟 白スニーカー判定</div>
+
+    <div class="container">
+        <p style="color: #495057; font-size: 0.95rem; text-align: center; margin-bottom: 20px;">
+            枠に合わせて、明るい場所で<br>スニーカーを撮影してください
+        </p>
+
+        <label class="camera-box" id="cameraBox">
+            <div class="sneaker-guide" id="guideSilhouette"></div>
+            <span class="instruction-text" id="guideText">タップしてカメラを起動 📸</span>
+            
+            <input type="file" id="cameraInput" accept="image/*" capture="environment">
+            
+            <img id="previewImage" alt="撮影したスニーカー">
+        </label>
+
+        <button class="action-btn" id="analyzeBtn">AIで汚れを判定する ✨</button>
+     <div id="resultArea" style="display: none; width: 100%; text-align: center; margin-top: 30px;">
+            <h3 style="color: #495057; font-size: 1.1rem; margin-bottom: 15px;">✨ 魔法のクリーニング結果 ✨</h3>
+            
+            <div class="comparison-slider">
+                <img id="beforeImage" alt="汚れたスニーカー">
+                
+                <img id="afterImage" alt="綺麗になったスニーカー">
+                
+                <div class="slider-line" id="sliderLine"></div>
+                <div class="slider-button" id="sliderButton">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" viewBox="0 0 16 16">
+                        <path fill-rule="evenodd" d="M11.5 1a.5.5 0 0 1 .5.5v13a.5.5 0 0 1-1 0v-13a.5.5 0 0 1 .5-.5z"/>
+                        <path fill-rule="evenodd" d="M2.146 8.354a.5.5 0 0 1 0-.708l3-3a.5.5 0 1 1 .708.708L3.207 8l2.647 2.646a.5.5 0 0 1-.708.708l-3-3zm11.708-.708a.5.5 0 0 1 0 .708l-3 3a.5.5 0 0 1-.708-.708L12.793 8l-2.647-2.646a.5.5 0 0 1 .708-.708l3 3z"/>
+                    </svg>
+                </div>
+                
+                <input type="range" min="0" max="100" value="50" id="compareSlider">
+            </div>
+            
+            <p style="font-size: 0.9rem; color: #6c757d; margin-top: 15px;">左右にスワイプして比較してください ↔️</p>
+<div id="scoreArea" style="display: none; margin-top: 25px;">
+                <div class="score-box">
+                    <span class="score-label">現在のクリーン度</span>
+                    <div class="score-value">
+                        <span id="cleanScore">--</span><span class="score-unit">点</span>
+                    </div>
+                    <p class="score-desc">本来の白さポテンシャルを引き出しましょう！✨</p>
+                </div>
+                
+                <a href="#" class="care-btn">👟 靴のお手入れ方法を見る</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 💻 AIエンジニア：より高速でiPhoneでも動くコードに修正！
+        const cameraInput = document.getElementById('cameraInput');
+        const previewImage = document.getElementById('previewImage');
+        const guideSilhouette = document.getElementById('guideSilhouette');
+        const guideText = document.getElementById('guideText');
+        const analyzeBtn = document.getElementById('analyzeBtn');
+        const cameraBox = document.getElementById('cameraBox');
+
+        // 👇ここから追加
+        const beforeImage = document.getElementById('beforeImage');
+        const afterImage = document.getElementById('afterImage');
+        const compareSlider = document.getElementById('compareSlider');
+        const sliderLine = document.getElementById('sliderLine');
+        const sliderButton = document.getElementById('sliderButton');
+        const resultArea = document.getElementById('resultArea');
+
+       //追加した部分
+　　　　const scoreArea = document.getElementById('scoreArea');
+        const cleanScore = document.getElementById('cleanScore');
+
+        // 👇スワイプした時にclip-pathと線の位置を動かす魔法の関数
+        compareSlider.addEventListener('input', function(e) {
+            const sliderValue = e.target.value;
+            afterImage.style.clipPath = `polygon(0 0, ${sliderValue}% 0, ${sliderValue}% 100%, 0 100%)`;
+            sliderLine.style.left = `${sliderValue}%`;
+            sliderButton.style.left = `${sliderValue}%`;
+        });
+
+        cameraInput.addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                // FileReaderをやめて、軽量な「一時URL」を作成する方式に変更
+                const objectUrl = window.URL.createObjectURL(file);
+                
+                // そのURLを画像タグにセット
+                previewImage.src = objectUrl; 
+                previewImage.style.display = 'block'; 
+                
+                // ガイド枠とテキストを消す
+                guideSilhouette.style.display = 'none';
+                guideText.style.display = 'none';
+                cameraBox.style.border = 'none'; 
+                
+                // 「判定する」ボタンを出現させる
+                analyzeBtn.style.display = 'block';
+            }
+        });
+
+        // 👇 --- ここから新しく追加する通信処理 --- 👇
+        analyzeBtn.addEventListener('click', async function() {
+            // 撮影された画像データを取り出す
+            const file = cameraInput.files[0];
+            if (!file) {
+                alert("画像がありません！");
+                return;
+            }
+
+            // ボタンの文字を変えて、通信中であることをユーザーに伝える（UI/UXの基本！）
+            const originalText = analyzeBtn.innerText;
+            analyzeBtn.innerText = "Pythonへ送信中... 🚀";
+            analyzeBtn.disabled = true; // 連打防止
+
+            // 画像を「FormData」という箱に梱包する
+            const formData = new FormData();
+            formData.append('image', file); // Python側と同じ 'image' という名前を付ける
+
+            try {
+                // Flaskサーバーへ送信！
+                const response = await fetch('/analyze', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                // Pythonからのお返事を受け取る
+                const result = await response.json();
+
+                if (result.status === "success") {
+                    // 🎉 Before画像には「撮った写真」をセット
+                    beforeImage.src = previewImage.src; 
+                    // 🎉 After画像には「Pythonから届いた写真」をセット
+                    afterImage.src = result.image_data; 
+                    
+                    // スライダーを初期位置（ど真ん中）にリセットしておく
+                    compareSlider.value = 50;
+                    afterImage.style.clipPath = `polygon(0 0, 50% 0, 50% 100%, 0 100%)`;
+                    sliderLine.style.left = `50%`;
+                    sliderButton.style.left = `50%`;
+
+　　　　　　　　　　// 🎉 Pythonから受け取ったスコアをセットしてエリアを表示！
+                    cleanScore.innerText = result.score;
+                    scoreArea.style.display = 'block';
+            
+                    resultArea.style.display = 'block';  // 隠していたエリアを表示
+                    resultArea.scrollIntoView({ behavior: 'smooth' }); // スクロール
+                } else {
+                    alert("❌ エラー: " + result.message);
+                }
+
+            } catch (error) {
+                alert("通信エラーが発生しました。\n" + error);
+            } finally {
+                // ボタンの文字と状態を元に戻す
+                analyzeBtn.innerText = originalText;
+                analyzeBtn.disabled = false;
+            }
+            
+        });
+    </script>
+</body>
+</html>
