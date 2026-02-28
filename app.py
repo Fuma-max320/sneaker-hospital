@@ -10,6 +10,12 @@ app = Flask(__name__)
 def home():
     return render_template('index.html')
 
+# 👇ここから追加：お手入れ解説ページへのルート
+@app.route('/care')
+def care():
+    return render_template('care.html')
+# 👆ここまで追加
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     if 'image' not in request.files:
