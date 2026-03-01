@@ -19,6 +19,29 @@
 
     <title>白スニーカー判定アプリ</title>
     <style>
+         /* 👔 PM: フッターの装飾 */
+        .app-footer {
+            text-align: center;
+            padding: 25px 0;
+            margin-top: 40px;
+            border-top: 1px solid #e9ecef;
+        }
+        .app-footer a {
+            color: #6c757d;
+            text-decoration: none;
+            font-size: 0.85rem;
+            margin: 0 10px;
+        }
+        .app-footer a:hover {
+            text-decoration: underline;
+            color: #007bff;
+        }
+        .app-footer p {
+            color: #adb5bd;
+            font-size: 0.75rem;
+            margin-top: 10px;
+        }
+
         /* 🎨 UI/UX: 全体をスマホアプリ風のモダンで清潔感のあるデザインに */
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
@@ -229,6 +252,40 @@
         .care-btn:active {
             transform: scale(0.97); /* 押した時の「へこむ」感触 */
         }
+
+      
+     /* 🎨 UI/UX: ローディングスピナーの装飾 */
+        #loadingArea {
+            display: none; /* 初期状態は非表示 */
+            text-align: center;
+            margin-top: 25px;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e9ecef;
+            border-top: 4px solid #007bff; /* クルクル回る青い線 */
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .loading-text {
+            color: #007bff;
+            font-weight: bold;
+            font-size: 0.95rem;
+            margin: 0;
+            animation: pulse 1.5s infinite; /* 文字をフワフワ点滅させる */
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
     </style>
 </head>
 <body>
@@ -250,6 +307,12 @@
         </label>
 
         <button class="action-btn" id="analyzeBtn">AIで汚れを判定する ✨</button>
+
+        <div id="loadingArea">
+            <div class="spinner"></div>
+            <p class="loading-text">AIがスニーカーの白さを全力で解析中...✨</p>
+        </div>
+
      <div id="resultArea" style="display: none; width: 100%; text-align: center; margin-top: 30px;">
             <h3 style="color: #495057; font-size: 1.1rem; margin-bottom: 15px;">✨ 魔法のクリーニング結果 ✨</h3>
             
@@ -305,6 +368,8 @@
 　　　　const scoreArea = document.getElementById('scoreArea');
         const cleanScore = document.getElementById('cleanScore');
 
+　　　　const loadingArea = document.getElementById('loadingArea'); // ⬅️これを追加しました
+
         // 👇スワイプした時にclip-pathと線の位置を動かす魔法の関数
         compareSlider.addEventListener('input', function(e) {
             const sliderValue = e.target.value;
@@ -351,6 +416,10 @@
             const formData = new FormData();
             formData.append('image', file); // Python側と同じ 'image' という名前を付ける
 
+　　　　　　// 👇通信を始める直前にスピナーを出し、前回の手順を隠す
+            loadingArea.style.display = 'block';
+            resultArea.style.display = 'none';
+
             try {
                 // Flaskサーバーへ送信！
                 const response = await fetch('/analyze', {
@@ -386,12 +455,19 @@
             } catch (error) {
                 alert("通信エラーが発生しました。\n" + error);
             } finally {
-                // ボタンの文字と状態を元に戻す
-                analyzeBtn.innerText = originalText;
+               // 👇通信が成功してもエラーになっても、最後に必ずスピナーを隠す
+                loadingArea.style.display = 'none';
+                
+                // 分析中ボタンを元に戻す
                 analyzeBtn.disabled = false;
+                analyzeBtn.innerHTML = 'AIで汚れを判定する ✨'; 
             }
             
         });
     </script>
+   <footer class="app-footer">
+        <a href="#">利用規約</a> | <a href="#">プライバシーポリシー</a>
+        <p>&copy; 2026 スニーカーAIクリーナー All Rights Reserved.</p>
+    </footer>
 </body>
 </html>
