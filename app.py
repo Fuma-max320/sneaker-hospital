@@ -16,6 +16,16 @@ def care():
     return render_template('care.html')
 # 👆ここまで追加
 
+# 👇ここから追加：利用規約とプライバシーポリシーへのルート
+@app.route('/terms')
+def terms():
+    return render_template('terms.html')
+
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+# 👆ここまで追加
+
 @app.route('/analyze', methods=['POST'])
 def analyze():
     if 'image' not in request.files:
