@@ -14,7 +14,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-　　<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2595509880048175"
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2595509880048175"
      crossorigin="anonymous"></script>
 
     <title>白スニーカー判定アプリ</title>
@@ -71,10 +71,50 @@
             flex-direction: column;
             align-items: center;
         }
-        /* 🎨 UI/UX: カメラエリア（ここにガイド枠を重ねます） */
+        /* 🎨 UI/UX & PM: 3ステップ図解と注意書きの装飾（新規追加） */
+        .intro-steps {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #ffffff;
+            padding: 15px 10px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            flex-wrap: wrap;
+            gap: 5px;
+            width: 100%;
+        }
+        .step-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: #495057;
+        }
+        .step-icon {
+            font-size: 1.5rem;
+            margin-bottom: 3px;
+        }
+        .step-arrow {
+            color: #ced4da;
+            font-weight: bold;
+            margin: 0 5px;
+        }
+        .target-notice {
+            text-align: center;
+            font-size: 0.85rem;
+            color: #e63946;
+            font-weight: bold;
+            margin-top: 0;
+            margin-bottom: 25px;
+        }
+
+        /* 🎨 UI/UX: カメラエリア */
         .camera-box {
             width: 100%;
-            aspect-ratio: 3 / 4; /* スマホの写真サイズに合わせる */
+            aspect-ratio: 3 / 4;
             background-color: #e9ecef;
             border: 3px dashed #adb5bd;
             border-radius: 16px;
@@ -89,7 +129,7 @@
         .camera-box:hover {
             background-color: #dee2e6;
         }
-        /* 🎨 UI/UX: スニーカーの半透明シルエット（SVGを背景にして点線で表現） */
+        /* 🎨 UI/UX: スニーカーの半透明シルエット */
         .sneaker-guide {
             position: absolute;
             width: 80%;
@@ -99,7 +139,7 @@
             background-position: center;
             background-size: contain;
             opacity: 0.8;
-            pointer-events: none; /* クリックを邪魔しないための設定 */
+            pointer-events: none;
         }
         .instruction-text {
             position: absolute;
@@ -116,11 +156,11 @@
         #previewImage {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* 枠いっぱいに綺麗に収める */
-            display: none; /* 最初は隠しておく */
+            object-fit: cover;
+            display: none;
             z-index: 10;
         }
-        /* 実際のファイル送信ボタンはダサいので隠す */
+        /* 実際のファイル送信ボタンは隠す */
         input[type="file"] {
             display: none;
         }
@@ -136,17 +176,17 @@
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
-            display: none; /* 写真を撮るまで隠す */
+            display: none;
             transition: transform 0.2s;
         }
         .action-btn:active {
             transform: scale(0.95);
         }
-/* 🎨 UI/UX: Before/Afterスライダーの装飾 */
+        /* 🎨 UI/UX: Before/Afterスライダーの装飾 */
         .comparison-slider {
             position: relative;
             width: 100%;
-            aspect-ratio: 3 / 4; /* カメラ枠と同じ比率をキープ */
+            aspect-ratio: 3 / 4;
             border-radius: 16px;
             overflow: hidden;
             box-shadow: 0 8px 25px rgba(0,0,0,0.15);
@@ -160,7 +200,6 @@
             object-fit: cover;
         }
         #afterImage {
-            /* 初期状態は左半分だけ表示（clip-pathの魔法！） */
             clip-path: polygon(0 0, 50% 0, 50% 100%, 0 100%);
         }
         /* スライダーの白い線 */
@@ -173,7 +212,7 @@
             background-color: white;
             transform: translateX(-50%);
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
-            pointer-events: none; /* タッチの邪魔をしない */
+            pointer-events: none;
         }
         /* スライダーの中央ボタン */
         .slider-button {
@@ -190,7 +229,7 @@
             align-items: center;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
             color: #555;
-            pointer-events: none; /* タッチの邪魔をしない */
+            pointer-events: none;
         }
         /* 透明な操作用 input range */
         #compareSlider {
@@ -199,11 +238,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            opacity: 0; /* 完全に透明にして上に被せる */
+            opacity: 0;
             margin: 0;
             z-index: 10;
         }
-/* 🎨 UI/UX: スコア表示とボタンの装飾 */
+        /* 🎨 UI/UX: スコア表示とボタンの装飾 */
         .score-box {
             background: #f8f9fa;
             border-radius: 12px;
@@ -230,7 +269,7 @@
         }
         .score-desc {
             font-size: 0.85rem;
-            color: #28a745; /* ポジティブなグリーン */
+            color: #28a745;
             font-weight: bold;
             margin: 5px 0 0 0;
         }
@@ -250,13 +289,12 @@
             box-sizing: border-box;
         }
         .care-btn:active {
-            transform: scale(0.97); /* 押した時の「へこむ」感触 */
+            transform: scale(0.97);
         }
-
-      
-     /* 🎨 UI/UX: ローディングスピナーの装飾 */
+        
+        /* 🎨 UI/UX: ローディングスピナーの装飾 */
         #loadingArea {
-            display: none; /* 初期状態は非表示 */
+            display: none;
             text-align: center;
             margin-top: 25px;
         }
@@ -264,7 +302,7 @@
             width: 40px;
             height: 40px;
             border: 4px solid #e9ecef;
-            border-top: 4px solid #007bff; /* クルクル回る青い線 */
+            border-top: 4px solid #007bff;
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin: 0 auto 10px auto;
@@ -278,7 +316,7 @@
             font-weight: bold;
             font-size: 0.95rem;
             margin: 0;
-            animation: pulse 1.5s infinite; /* 文字をフワフワ点滅させる */
+            animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
             0% { opacity: 0.6; }
@@ -297,6 +335,23 @@
             枠に合わせて、明るい場所で<br>スニーカーを撮影してください
         </p>
 
+        <div class="intro-steps">
+            <div class="step-item">
+                <span class="step-icon">📸</span>
+                <span class="step-text">①スマホで撮る</span>
+            </div>
+            <span class="step-arrow">➡</span>
+            <div class="step-item">
+                <span class="step-icon">✨</span>
+                <span class="step-text">②AIが判定</span>
+            </div>
+            <span class="step-arrow">➡</span>
+            <div class="step-item">
+                <span class="step-icon">👟</span>
+                <span class="step-text">③お手入れがわかる</span>
+            </div>
+        </div>
+        <p class="target-notice">※白スニーカーやキャンバスシューズで最も威力を発揮します！</p>
         <label class="camera-box" id="cameraBox">
             <div class="sneaker-guide" id="guideSilhouette"></div>
             <span class="instruction-text" id="guideText">タップしてカメラを起動 📸</span>
@@ -310,15 +365,17 @@
 
         <div id="loadingArea">
             <div class="spinner"></div>
-            <p class="loading-text">AIがスニーカーの白さを全力で解析中...✨</p>
+            <p class="loading-text">
+                AIが全力で解析中...✨<br>
+                <span style="font-size: 0.8rem; color: #6c757d; font-weight: normal;">(高画質画像は少し時間がかかります🙏)</span>
+            </p>
         </div>
 
-     <div id="resultArea" style="display: none; width: 100%; text-align: center; margin-top: 30px;">
+        <div id="resultArea" style="display: none; width: 100%; text-align: center; margin-top: 30px;">
             <h3 style="color: #495057; font-size: 1.1rem; margin-bottom: 15px;">✨ 魔法のクリーニング結果 ✨</h3>
             
             <div class="comparison-slider">
                 <img id="beforeImage" alt="汚れたスニーカー">
-                
                 <img id="afterImage" alt="綺麗になったスニーカー">
                 
                 <div class="slider-line" id="sliderLine"></div>
@@ -333,7 +390,7 @@
             </div>
             
             <p style="font-size: 0.9rem; color: #6c757d; margin-top: 15px;">左右にスワイプして比較してください ↔️</p>
-<div id="scoreArea" style="display: none; margin-top: 25px;">
+            <div id="scoreArea" style="display: none; margin-top: 25px;">
                 <div class="score-box">
                     <span class="score-label">現在のクリーン度</span>
                     <div class="score-value">
@@ -348,7 +405,7 @@
     </div>
 
     <script>
-        // 💻 AIエンジニア：より高速でiPhoneでも動くコードに修正！
+        // 💻 AIエンジニア：より高速でiPhoneでも動くコード
         const cameraInput = document.getElementById('cameraInput');
         const previewImage = document.getElementById('previewImage');
         const guideSilhouette = document.getElementById('guideSilhouette');
@@ -356,7 +413,6 @@
         const analyzeBtn = document.getElementById('analyzeBtn');
         const cameraBox = document.getElementById('cameraBox');
 
-        // 👇ここから追加
         const beforeImage = document.getElementById('beforeImage');
         const afterImage = document.getElementById('afterImage');
         const compareSlider = document.getElementById('compareSlider');
@@ -364,11 +420,9 @@
         const sliderButton = document.getElementById('sliderButton');
         const resultArea = document.getElementById('resultArea');
 
-       //追加した部分
-　　　　const scoreArea = document.getElementById('scoreArea');
+        const scoreArea = document.getElementById('scoreArea');
         const cleanScore = document.getElementById('cleanScore');
-
-　　　　const loadingArea = document.getElementById('loadingArea'); // ⬅️これを追加しました
+        const loadingArea = document.getElementById('loadingArea');
 
         // 👇スワイプした時にclip-pathと線の位置を動かす魔法の関数
         compareSlider.addEventListener('input', function(e) {
@@ -398,7 +452,7 @@
             }
         });
 
-        // 👇 --- ここから新しく追加する通信処理 --- 👇
+        // 👇 --- 通信処理 --- 👇
         analyzeBtn.addEventListener('click', async function() {
             // 撮影された画像データを取り出す
             const file = cameraInput.files[0];
@@ -407,16 +461,16 @@
                 return;
             }
 
-            // ボタンの文字を変えて、通信中であることをユーザーに伝える（UI/UXの基本！）
+            // ボタンの文字を変えて、通信中であることをユーザーに伝える
             const originalText = analyzeBtn.innerText;
             analyzeBtn.innerText = "Pythonへ送信中... 🚀";
             analyzeBtn.disabled = true; // 連打防止
 
             // 画像を「FormData」という箱に梱包する
             const formData = new FormData();
-            formData.append('image', file); // Python側と同じ 'image' という名前を付ける
+            formData.append('image', file); 
 
-　　　　　　// 👇通信を始める直前にスピナーを出し、前回の手順を隠す
+            // 👇通信を始める直前にスピナーを出し、前回の手順を隠す
             loadingArea.style.display = 'block';
             resultArea.style.display = 'none';
 
@@ -442,7 +496,7 @@
                     sliderLine.style.left = `50%`;
                     sliderButton.style.left = `50%`;
 
-　　　　　　　　　　// 🎉 Pythonから受け取ったスコアをセットしてエリアを表示！
+                    // 🎉 Pythonから受け取ったスコアをセットしてエリアを表示！
                     cleanScore.innerText = result.score;
                     scoreArea.style.display = 'block';
             
