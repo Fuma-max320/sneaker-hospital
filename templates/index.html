@@ -4,8 +4,8 @@
     <meta property="og:title" content="スニーカーAIクリーナー ✨">
     <meta property="og:description" content="AIがあなたのスニーカーの「白さポテンシャル」を判定！魔法の擬似クリーニングを体験しよう👟">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://あなたのRenderのURL.onrender.com/">
-    <meta property="og:image" content="https://あなたのRenderのURL.onrender.com/static/ogp-image.jpg">
+    <meta property="og:url" content="https://sneaker-hospital.onrender.com/">
+    <meta property="og:image" content="https://sneaker-hospital.onrender.com/static/ogp-image.jpg">
     <meta property="og:site_name" content="スニーカーAIクリーナー">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="スニーカーAIクリーナー ✨">
@@ -324,7 +324,42 @@
             100% { opacity: 0.6; }
         }
 
+/* 🗣️ 定性フィードバック：アンケートボタンの装飾 */
+        .survey-btn {
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            background-color: #ffffff;
+            color: #495057;
+            text-align: center;
+            text-decoration: none;
+            border: 2px solid #ced4da;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            box-sizing: border-box;
+            transition: all 0.2s;
+            margin-top: 15px;
+        }
+        .survey-btn:hover {
+            background-color: #f8f9fa;
+            border-color: #adb5bd;
+        }
+        .survey-btn:active {
+            transform: scale(0.98);
+        }
+
     </style>
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-PXE3NH315Z"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'G-PXE3NH315Z');
+    </script>
+
 </head>
 <body>
 
@@ -400,12 +435,17 @@
                 </div>
                 
                 <a href="/care" class="care-btn">👟 靴のお手入れ方法を見る</a>
+
+                <a href="https://forms.gle/eJHjmEa4cbecCiah8" target="_blank" rel="noopener noreferrer" class="survey-btn" id="surveyBtn">
+                    📝 10秒アンケートにご協力ください🙏<br>
+                    <span style="font-size: 0.75rem; font-weight: normal; color: #6c757d;">(あなたの声がAIをさらに賢くします！)</span>
+                </a>
             </div>
         </div>
     </div>
 
-    <script>
-        // 💻 AIエンジニア：より高速でiPhoneでも動くコード
+<script>
+        // 💻 AIエンジニア：より高速で堅牢なコード
         const cameraInput = document.getElementById('cameraInput');
         const previewImage = document.getElementById('previewImage');
         const guideSilhouette = document.getElementById('guideSilhouette');
@@ -424,7 +464,17 @@
         const cleanScore = document.getElementById('cleanScore');
         const loadingArea = document.getElementById('loadingArea');
 
-        // 👇スワイプした時にclip-pathと線の位置を動かす魔法の関数
+        // 現在表示しているプレビュー画像のURLを保持する変数
+        let currentObjectUrl = null;
+
+        // 安全にGA4イベントを送信する関数（AdBlock対策）
+        function sendEvent(eventName, eventParams) {
+            if (typeof window.gtag === 'function') {
+                gtag('event', eventName, eventParams);
+            }
+        }
+
+        // スワイプした時にclip-pathと線の位置を動かす関数
         compareSlider.addEventListener('input', function(e) {
             const sliderValue = e.target.value;
             afterImage.style.clipPath = `polygon(0 0, ${sliderValue}% 0, ${sliderValue}% 100%, 0 100%)`;
@@ -435,89 +485,98 @@
         cameraInput.addEventListener('change', function(event) {
             const file = event.target.files[0];
             if (file) {
-                // FileReaderをやめて、軽量な「一時URL」を作成する方式に変更
-                const objectUrl = window.URL.createObjectURL(file);
+                // 古い画像URLがあれば解放（メモリリーク対策）
+                if (currentObjectUrl) {
+                    URL.revokeObjectURL(currentObjectUrl);
+                }
                 
-                // そのURLを画像タグにセット
-                previewImage.src = objectUrl; 
+                // 一時URLを作成
+                currentObjectUrl = window.URL.createObjectURL(file);
+                
+                previewImage.src = currentObjectUrl; 
                 previewImage.style.display = 'block'; 
                 
-                // ガイド枠とテキストを消す
                 guideSilhouette.style.display = 'none';
                 guideText.style.display = 'none';
                 cameraBox.style.border = 'none'; 
                 
-                // 「判定する」ボタンを出現させる
                 analyzeBtn.style.display = 'block';
+
+                sendEvent('image_uploaded', { 'event_category': 'engagement', 'event_label': 'Photo Set' });
             }
         });
 
-        // 👇 --- 通信処理 --- 👇
         analyzeBtn.addEventListener('click', async function() {
-            // 撮影された画像データを取り出す
             const file = cameraInput.files[0];
             if (!file) {
                 alert("画像がありません！");
                 return;
             }
 
-            // ボタンの文字を変えて、通信中であることをユーザーに伝える
             const originalText = analyzeBtn.innerText;
             analyzeBtn.innerText = "AIへ送信中... 🚀";
-            analyzeBtn.disabled = true; // 連打防止
+            analyzeBtn.disabled = true;
 
-            // 画像を「FormData」という箱に梱包する
             const formData = new FormData();
             formData.append('image', file); 
 
-            // 👇通信を始める直前にスピナーを出し、前回の手順を隠す
             loadingArea.style.display = 'block';
             resultArea.style.display = 'none';
 
+            sendEvent('analyze_start', { 'event_category': 'engagement' });
+
             try {
-                // Flaskサーバーへ送信！
                 const response = await fetch('/analyze', {
                     method: 'POST',
                     body: formData
                 });
 
-                // Pythonからのお返事を受け取る
                 const result = await response.json();
 
                 if (result.status === "success") {
-                    // 🎉 Before画像には「撮った写真」をセット
                     beforeImage.src = previewImage.src; 
-                    // 🎉 After画像には「Pythonから届いた写真」をセット
                     afterImage.src = result.image_data; 
                     
-                    // スライダーを初期位置（ど真ん中）にリセットしておく
                     compareSlider.value = 50;
                     afterImage.style.clipPath = `polygon(0 0, 50% 0, 50% 100%, 0 100%)`;
                     sliderLine.style.left = `50%`;
                     sliderButton.style.left = `50%`;
 
-                    // 🎉 Pythonから受け取ったスコアをセットしてエリアを表示！
                     cleanScore.innerText = result.score;
                     scoreArea.style.display = 'block';
             
-                    resultArea.style.display = 'block';  // 隠していたエリアを表示
-                    resultArea.scrollIntoView({ behavior: 'smooth' }); // スクロール
+                    resultArea.style.display = 'block'; 
+                    resultArea.scrollIntoView({ behavior: 'smooth' });
+
+                    sendEvent('analyze_success', { 'value': result.score });
+
                 } else {
                     alert("❌ エラー: " + result.message);
                 }
 
             } catch (error) {
-                alert("通信エラーが発生しました。\n" + error);
+                alert("通信エラーが発生しました。\nネットワーク環境をご確認ください。");
+                console.error("Fetch error:", error);
             } finally {
-               // 👇通信が成功してもエラーになっても、最後に必ずスピナーを隠す
                 loadingArea.style.display = 'none';
-                
-                // 分析中ボタンを元に戻す
                 analyzeBtn.disabled = false;
-                analyzeBtn.innerHTML = 'AIで汚れを判定する ✨'; 
+                analyzeBtn.innerText = 'AIで汚れを判定する ✨'; // 元のテキストに戻す
             }
-            
         });
+
+        const careBtn = document.querySelector('.care-btn');
+        if (careBtn) {
+            careBtn.addEventListener('click', function() {
+                sendEvent('click_care_link', { 'event_category': 'conversion' });
+            });
+        }
+
+        const surveyBtn = document.getElementById('surveyBtn');
+        if (surveyBtn) {
+            surveyBtn.addEventListener('click', function() {
+                sendEvent('click_survey_link', { 'event_category': 'engagement', 'event_label': 'Survey Clicked' });
+            });
+        }
     </script>
    <footer class="app-footer">
         <a href="/terms">利用規約</a> | <a href="/privacy">プライバシーポリシー</a>
